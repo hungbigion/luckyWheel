@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+
+    <title>Vòng Quay May Mắn</title>
+ 
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: url('background.jpg') no-repeat center center/cover;
+            font-family: Arial, sans-serif;
+            color: white;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            width: 90%; /* Chiều rộng linh hoạt */
+            max-width: 350px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .form-container label {
+            font-size: 14px;
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .form-container input {
+            width: 95%;
+            padding: 10px;
+            border: 1px solid #00aaff;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .form-container input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .form-container button {
+            background: linear-gradient(45deg, #0044cc, #0088ff);
+            border: none;
+            color: white;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 0 10px rgba(0, 170, 255, 0.5);
+            transition: 0.3s;
+        }
+
+        .form-container button:hover {
+            background: linear-gradient(45deg, #0022aa, #0066ff);
+            box-shadow: 0 0 20px rgba(0, 170, 255, 0.8);
+        }
+
+        .wheel-container, .result-container {
+            display: none;
+        }
+        .wheel-container{
+            width: 80vw; /* Co giãn theo màn hình */
+            max-width: 360px; 
+            height: auto;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        #wheelCanvas {
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: auto;
+            transform-origin: center center;
+            filter: drop-shadow(0px 0px 10px rgba(0, 191, 255, 0.8)); /* Hiệu ứng phát sáng */
+        }
+        .spin-button {
+            position: absolute;
+            top: 46%;
+            left: 50%;
+            width: 100px; /* Kích thước nút */
+            height: 100px;
+            border: none;
+            background: url('buttontam.png') no-repeat center center / cover; /* Hình ảnh nút */
+            border-radius: 50%;
+            cursor: pointer;
+            transform: translate(-50%, -50%); /* Căn giữa tuyệt đối */
+        }
+
+.spin-button:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+}
+/* 🌟 Nền xanh đậm + Hiệu ứng ánh sáng */
+.result-container {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle at center, rgba(11, 108, 254, 0.8), rgba(0, 0, 50, 0.9));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    padding: 20px;
+}
+@media screen and (max-width: 480px) {
+    .result-container {
+        padding-top: 30%;
+    }
+}
+
+/* 🎉 Chữ "QUÀ CHẤT LIỀN TAY" */
+.congrats-text {
+    font-size: 30px;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-shadow: 0px 0px 15px rgba(255, 255, 255, 0.8);
+}
+
+/* 🏆 Hình ảnh phần thưởng */
+.prize-image {
+    width: 250px;
+    margin: 15px 0;
+    filter: drop-shadow(0px 0px 10px rgba(255, 255, 255, 0.7));
+}
+
+/* 🥇 Hạng phần thưởng */
+.prize-rank {
+    font-size: 20px;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-shadow: 0px 0px 10px rgba(255, 255, 255, 0.7);
+}
+
+/* 🎁 Tên phần thưởng */
+.prize-name {
+    font-size: 20px;
+    color: #FFD700; /* Màu vàng */
+    font-weight: bold;
+    text-shadow: 0px 0px 10px rgba(255, 215, 0, 0.7);
+}
+
+/* 🔘 Nút "QUAY TIẾP" có hiệu ứng phát sáng */
+.continue-btn {
+    margin-top: 20px;
+    padding: 12px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(145deg, #0044cc, #0080ff);
+    border: 1px solid yellow;
+    border-radius: 30px;
+    box-shadow: 0px 0px 15px rgba(0, 102, 255, 0.9);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.continue-btn:hover {
+    box-shadow: 0px 0px 20px rgba(0, 102, 255, 1);
+    transform: scale(1.05);
+}
+</style>
+</head>
+<body>
+    <audio id="backgroundMusic" loop>
+        <source src="musicBG.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+    <audio id="celebrationSound">
+        <source src="congratulations.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+    <div class="form-container" id="formContainer">
+        <label>Họ & Tên: <input type="text" id="name" placeholder="Nhập họ tên"></label>
+        <label>Số điện thoại: <input type="text" id="phone" placeholder="Nhập số điện thoại"></label>
+        <label>Số lon bia: <input type="number" id="cans" placeholder="Nhập số lượng lon bia"></label>
+        <button onclick="startGame()">XÁC NHẬN</button>
+    </div>
+
+    <div class="wheel-container" id="wheelContainer">
+        <canvas id="wheelCanvas" width="300" height="300"></canvas>
+        <div class="pointer"></div>
+        <button class="spin-button" onclick="spinWheel()"></button>
+    </div>
+
+    <div class="result-container" id="resultContainer">
+        <h1 class="congrats-text">QUÀ CHẤT LIỀN TAY</h1>
+        <img id="prizeImage" class="prize-image" src="" alt="Phần thưởng">
+        <p id="prizeRank" class="prize-rank"></p>
+        <p id="prizeName" class="prize-name"></p>
+        <button class="continue-btn" onclick="restartGame()">QUAY TIẾP</button>
+    </div>
+    
+
+    <script>
+       window.onload = function () {
+        // Chờ một chút trước khi phát nhạc
+        setTimeout(function() {
+            document.getElementById('backgroundMusic').play();
+        }, 100); // Chờ 100ms trước khi phát nhạc
+
+        document.getElementById('resultContainer').style.display = 'none';
+    };
+const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const sections = [
+            { rank: 'GIẢI NHẤT', img: '/lucky-wheel-project/images/iphone.png', name: 'iPhone 16' },
+            { rank: 'GIẢI NHÌ', img: '/lucky-wheel-project/images/loajbl.png', name: 'Loa JBL' },
+            { rank: 'GIẢI BA', img: '/lucky-wheel-project/images/smartwatch.png', name: 'SmartWatch' }
+        ];
+        let currentRotation = 0;
+        
+        function drawWheel() {
+            const canvas = document.getElementById("wheelCanvas");
+            const ctx = canvas.getContext("2d");
+
+            // Cập nhật kích thước canvas lớn hơn để có khoảng trống cho viền
+            const canvasSize = 360;  // Kích thước mới để có viền đẹp
+            canvas.width = canvasSize;
+            canvas.height = canvasSize;
+            
+            const centerX = canvasSize / 2;
+            const centerY = canvasSize / 2;
+            const outerRadius = 170; // Bán kính viền ngoài
+            const innerRadius = 150; // Bán kính vòng quay chính
+            const angle = (2 * Math.PI) / sections.length;
+
+            // **Tạo hiệu ứng viền giống ống với ánh sáng trung tâm**
+            const gradient = ctx.createRadialGradient(centerX, centerY, 50, centerX, centerY, outerRadius);
+            gradient.addColorStop(0, "#A0D8FF");  // Xanh dương sáng (trung tâm)
+            gradient.addColorStop(0.5, "#1E90FF"); // Xanh dương trung bình
+            gradient.addColorStop(1, "#0044CC");  // Xanh dương đậm (ngoài cùng)
+
+            // **Vẽ viền ngoài với hiệu ứng ống**
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, outerRadius, 0, 2 * Math.PI);
+            ctx.fillStyle = gradient;
+            ctx.fill();
+
+            // **Thêm viền highlight để tạo hiệu ứng ánh sáng**
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, outerRadius - 2, 0, 2 * Math.PI);
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.6)"; // Viền sáng nhẹ
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // **Vẽ các phần thưởng bên trong vòng quay**
+            sections.forEach((section, i) => {
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, innerRadius, i * angle, (i + 1) * angle);
+                ctx.fillStyle = `hsl(220, 100%, ${70 - i * 10}%)`;
+                ctx.fill();
+                ctx.save();
+                
+                ctx.translate(centerX, centerY);
+                ctx.rotate(i * angle + angle / 2 + Math.PI / 2);
+                
+                // **Rank - Màu trắng**
+                ctx.fillStyle = '#FFFFFF'; 
+                ctx.font = 'bold 15px Helvetica';
+                ctx.textAlign = 'center';
+                ctx.fillText(section.rank, 0, -120);
+                
+                // **Hình ảnh phần thưởng**
+                const img = new Image();
+                img.src = section.img;
+                img.onload = () => {
+                    ctx.save();
+                    ctx.translate(centerX, centerY);
+                    ctx.rotate(i * angle + angle / 2 + Math.PI / 2);
+                    ctx.drawImage(img, -25, -120, 50, 50);
+                    ctx.restore();
+                };
+
+                // **Name - Màu vàng**
+                ctx.fillStyle = '#FFD700'; 
+                ctx.font = '14px Verdana';
+                ctx.fillText(section.name, 0, -50);
+                
+                ctx.restore();
+            });
+        }
+
+
+
+        
+        function startGame() {
+            // Zoom out formContainer
+            anime({
+                    targets: '#formContainer',
+                    opacity: 0,
+                    scale: 0,
+                    duration: 1000,
+                    easing: 'easeInOutQuad',
+                    complete: function() {
+                        // Ẩn formContainer và hiển thị wheelContainer
+                        document.getElementById("formContainer").style.display = 'none';
+                        
+                        // Zoom in wheelContainer
+                        anime({
+                            targets: '#wheelContainer',
+                            opacity: 1,
+                            scale: 1,
+                            duration: 1000,
+                            easing: 'easeInOutQuad',
+                            begin: function() {
+                                document.getElementById("wheelContainer").style.display = 'block';
+                            }
+                        });
+                    }
+                });
+                        // document.getElementById('formContainer').style.display = 'none';
+                        // document.getElementById('wheelContainer').style.display = 'block';
+                        drawWheel();
+        }
+        function spinWheel() {
+    const canvas = document.getElementById("wheelCanvas");
+    
+    // **Đặt lại transform-origin để quay đúng tâm**
+    canvas.style.transformOrigin = "50% 50%";
+
+    let spins = 9; // Số vòng quay
+    let totalRotation = 360 * spins; // Quay nhiều vòng trước khi dừng
+
+    // Chọn ngẫu nhiên một phần thưởng trước khi quay
+    let selectedIndex = Math.floor(Math.random() * sections.length);
+    let sectionSize = 360 / sections.length;
+    
+    // Tính toán góc để phần thưởng nằm ở hướng 12 giờ (270 độ)
+    let targetAngle = 200 - (selectedIndex * sectionSize);
+    if (targetAngle < 0) targetAngle += 360;
+
+    let finalRotation = totalRotation + targetAngle;
+    
+    // Áp dụng quay
+    canvas.style.transition = `transform 5s ease-out`;
+    canvas.style.transform = `rotate(${finalRotation}deg)`;
+
+    setTimeout(() => {
+        // Hiển thị kết quả
+        // document.getElementById('wheelContainer').style.display = 'none';
+        // document.getElementById('resultContainer').style.display = 'block';
+        anime({
+                    targets: '#wheelContainer',
+                    opacity: 0,
+                    scale: 0,
+                    duration: 1000,
+                    easing: 'easeInOutQuad',
+                    complete: function() {
+                        // Ẩn formContainer và hiển thị wheelContainer
+                        document.getElementById("wheelContainer").style.display = 'none';
+                        
+                        // Zoom in wheelContainer
+                        anime({
+                            targets: '#resultContainer',
+                            opacity: 1,
+                            scale: 1,
+                            duration: 1000,
+                            easing: 'easeInOutQuad',
+                            begin: function() {
+                                document.getElementById("resultContainer").style.display = 'block';
+                            }
+                        });
+                    }
+                });
+        document.getElementById('prizeImage').src = sections[selectedIndex].img;
+        document.getElementById('prizeRank').innerText = sections[selectedIndex].rank;
+        document.getElementById('prizeName').innerText = sections[selectedIndex].name;
+        // Phát hiệu ứng âm thanh chúc mừng
+        document.getElementById('celebrationSound').play();
+    }, 6000); // Chờ quay xong rồi mới hiển thị
+}
+
+        function restartGame() {
+            
+            // document.getElementById('resultContainer').style.display = 'none';
+            // document.getElementById('wheelContainer').style.display = 'block';
+            anime({
+                    targets: '#resultContainer',
+                    opacity: 0,
+                    scale: 0,
+                    duration: 1000,
+                    easing: 'easeInOutQuad',
+                    complete: function() {
+                        // Ẩn formContainer và hiển thị wheelContainer
+                        document.getElementById("resultContainer").style.display = 'none';
+                        
+                        // Zoom in wheelContainer
+                        anime({
+                            targets: '#wheelContainer',
+                            opacity: 1,
+                            scale: 1,
+                            duration: 1000,
+                            easing: 'easeInOutQuad',
+                            begin: function() {
+                                document.getElementById("wheelContainer").style.display = 'block';
+                            }
+                        });
+                    }
+                });
+            // Reset transform để tránh quay chậm
+            canvas.style.transition = "none";
+            canvas.style.transform = "rotate(0deg)";
+            setTimeout(() => {
+                canvas.style.transition = "transform 5s ease-out";
+            }, 50);
+        }
+    </script>
+</body>
+</html>
